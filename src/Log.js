@@ -1,16 +1,12 @@
+// @ts-check
+
 /**
  * Implemented states for the logger
- * @see {@link Log.options} for further information
+ * @see {@link log.options} for further information
  * @since `1.0.0`
  * @enum {string}
  */
 const LogState = {
-	/**
-	 * Don't show state
-	 * @since `1.0.0`
-	 */
-	NONE: "",
-
 	/**
 	 * Empty/Unresolved state.
 	 * Displays as `[      ]` before message
@@ -35,17 +31,11 @@ const LogState = {
 
 /**
  * Implemented levels for the logger
- * @see {@link Log.options} for further information
+ * @see {@link log.options} for further information
  * @since `1.0.0`
  * @enum {string}
  */
 const LogLevel = {
-	/**
-	 * Don't use levels
-	 * @since `1.0.0`
-	 */
-	NONE: "",
-
 	/**
 	 * Show plain message.
 	 * Displays as `INFO:` before message
@@ -68,22 +58,15 @@ const LogLevel = {
 	ERROR: "ERROR"
 };
 
-class LogOptions {
-	/**
-	 * @private Internal
-	 * @param {LogState} state
-	 * @param {boolean} timestamp
-	 * @param {LogLevel} level
-	 */
-	constructor(state = Log.options.state, timestamp = Log.options.timestamp, level = Log.options.level) {
-		this.state = state;
-		this.timestamp = timestamp;
-		this.level = level;
-	}
-}
+/**
+ * @typedef {{
+ * 	state?: LogState,
+ * 	timestamp?: boolean,
+ * 	level?: LogLevel
+ * }} LogOptions
+ */
 
 /**
- * @private Internal
  * @param {number} number
  * @param {number} base
  * @returns {string}
@@ -95,7 +78,6 @@ function digitPair(number, base) {
 }
 
 /**
- * @private Internal
  * @returns {string}
  */
 function timestamp() {
@@ -113,54 +95,61 @@ function timestamp() {
 /**
  * Write new stuff to console
  * @param {*} message Data to *append* to the console
- * @param {LogOptions} options Onetime option overrides (@see {@link Log.options} for further information)
- * @returns {Log} `Log` Allows method chaining
+ * @param {LogOptions} options Onetime option overrides (@see {@link log.options} for further information)
+ * @returns {{
+ * 	append: Function,
+ * 	write: Function,
+ * 	clear: Function
+ * }} Allows method chaining
  * @since `1.0.0`
  */
-function append(message, options = {}) {
-	options = new LogOptions(options.state, options.timestamp, options.level);
+function append(message, options = log.options) {
+	let prefix = options.state || log.options.state ? `[${options.state}] ` : "";
 
-	let prefix = options.state ? `[${options.state}] ` : "";
+	prefix += options.timestamp || log.options.timestamp ? `${timestamp()} ` : "";
 
-	prefix += options.timestamp ? `${timestamp()} ` : "";
-
-	prefix += options.level ? `${options.level}: ` : "";
+	prefix += options.level || log.options.level ? `${options.level}: ` : "";
 
 	console.log(prefix + (typeof message == "string" ? message : JSON.stringify(message)));
 
-	return Log;
+	return log;
 }
 
 /**
  * Clear the console and write new stuff to it
  * @param {*} message Data to *write* to the console
- * @param {LogOptions} options Onetime option overrides (@see {@link Log.options} for further information)
- * @returns {Log} `Log` Allows method chaining
+ * @param {LogOptions} options Onetime option overrides (@see {@link log.options} for further information)
+ * @returns {{
+ * 	append: Function,
+ * 	write: Function,
+ * 	clear: Function
+ * }} Allows method chaining
  * @since `1.0.0`
  */
-function write(message, options = {}) {
-	console.clear();
-
-	return append(message, options);
+function write(message, options = log.options) {
+	return log.clear().append(message, options);
 }
 
 /**
  * Clear the console
- * @returns {Log} `Log` Allows method chaining
+ * @returns {{
+ * 	append: Function,
+ * 	write: Function,
+ * 	clear: Function
+ * }} Allows method chaining
  * @since `1.0.0`
  */
 function clear() {
 	console.clear();
 
-	return Log;
+	return log;
 }
 
 /**
  * Core Logger
  * @since `1.0.0`
- * @enum {Function|LogOptions}
  */
-const Log = {
+const log = {
 	append: append,
 	write: write,
 	clear: clear,
@@ -168,15 +157,14 @@ const Log = {
 	/**
 	 * Default options.
 	 * Message appearances:
-	 * @template `[[(      |  OK  |FAILED)] ][HH:MM:SS ][(INFO|WARN|ERROR): ]<message>`
-	 * @see {@link LogState}
-	 * @see {@link LogLevel}
+	 * @example`[[(      |  OK  |FAILED)] ][HH:MM:SS ][(INFO|WARN|ERROR): ]<message>`
+	 * @type {LogOptions}
 	 */
 	options: {
-		state: LogState.NONE,
-		timestamp: false,
-		level: LogLevel.NONE
+		state: undefined,
+		timestamp: undefined,
+		level: undefined
 	}
-}
+};
 
-module.exports = { Log, LogState, LogLevel };
+module.exports = { log, LogState, LogLevel };
