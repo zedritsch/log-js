@@ -1,15 +1,3 @@
-const LogState = {
-	PROGRESS: "      ",
-	OK: "  OK  ",
-	FAILED: "FAILED"
-};
-
-const LogLevel = {
-	INFO: "INFO",
-	WARN: "WARN",
-	ERROR: "ERROR"
-};
-
 function digitPair(number, base) {
 	const string = (Math.floor(number) % base).toString();
 
@@ -25,40 +13,35 @@ function timestamp() {
 	const minutes = digitPair(time, 60);
 	time /= 60;
 
-	return `${digitPair(time, 24)}:${minutes}:${seconds} `;
+	return `${digitPair(time, 24)}:${minutes}:${seconds}`;
 }
 
-function append(message, options = log.options) {
-	let prefix = options.state || log.options.state ? `[${options.state}] ` : "";
+module.exports = {
+	options: {},
 
-	prefix += options.timestamp || log.options.timestamp ? `${timestamp()} ` : "";
+	append: function (message, options = {}) {
+		options = {
+			state: options.state || this.options.state,
+			timestamp: options.timestamp || this.options.timestamp,
+			level: options.level || this.options.level
+		};
 
-	prefix += options.level || log.options.level ? `${options.level}: ` : "";
+		let prefix = options.state ? `[${options.state}] ` : "";
+		prefix += options.timestamp ? `${timestamp()} ` : "";
+		prefix += options.level ? `${options.level}: ` : "";
 
-	console.log(prefix + (typeof message == "string" ? message : JSON.stringify(message)));
+		console.log(prefix + (typeof message == "string" ? message : JSON.stringify(message)));
 
-	return log;
-}
+		return this;
+	},
 
-function write(message, options = log.options) {
-	return log.clear().append(message, options);
-}
+	write: function (message, options = {}) {
+		return this.clear().append(message, options);
+	},
 
-function clear() {
-	console.clear();
+	clear: function () {
+		console.clear();
 
-	return log;
-}
-
-const log = {
-	append: append,
-	write: write,
-	clear: clear,
-	options: {
-		state: undefined,
-		timestamp: undefined,
-		level: undefined
+		return this;
 	}
 };
-
-module.exports = { log, LogState, LogLevel };
