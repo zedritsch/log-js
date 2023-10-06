@@ -1,0 +1,17 @@
+{
+  "name": "log-js",
+  "version": "1.0.0",
+  "description": "Hi",
+  "main": "./src/log.js",
+  "module": "./src/log.mjs",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Zedritsch/Log-JS"
+  },
+  "keywords": [
+    "logging",
+    "log"
+  ],
+  "author": "Zedritsch",
+  "license": "MIT"
+}
